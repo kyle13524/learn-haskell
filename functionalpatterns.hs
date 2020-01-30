@@ -241,3 +241,63 @@ codersRuleCEOsDrool e e' =
 -- Prelude> Coder is the boss of CEO
 -- Take THAT CEO, we OWN YOU ;D
 
+
+
+-- 7.8 Function Composition
+
+
+
+-- (.) :: (b -> c) -> (a -> b) -> a -> c
+--           [1]         [2]     [3]  [4]
+
+-- 1. Function from b to c, passed as an argument
+-- 2. Function from a to b
+-- 3. Value of type a
+-- 4. Value of type c
+
+-- (.) :: (b -> c) -> (a -> b) -> (a -> c)
+--           [1]        [2]          [3]
+
+-- 1. Given a function from b to c
+-- 2. Given a function from a to b
+-- 3. Return a function from a to c
+
+-- Composed functions:
+-- (f . g) x = f (g x)
+
+-- (.) = composition operator
+-- f corresponds to (b -> c) function, g corresponds to (a -> b) function
+-- g function is applied to polymorphic x to return (x -> b) which is then passed
+-- as an argument to (b -> c) which produces the final result
+
+-- Example:
+xs = [1, 2, 3, 4, 5]
+funcComp = negate . sum $ xs
+
+-- Function application operator has higher precedence over composition operator, meaning the
+-- application would occur before the composition, causing a failure. We use $ to get around this.
+
+take5 = take 5 . reverse $ [1..10]
+take5enum = take 5 (enumFrom 3)
+take5enum' = take 5 . enumFrom $ 3
+take5enum'' x = take 5 . enumFrom $ x
+take5enumOdd x = take 5 . filter odd . enumFrom $ x
+take5enumOddReverse x = filter odd . take 5 . enumFrom $ x
+
+
+-- 7.9 Point-free style
+
+
+-- Point-free style is often cleaner as it allows us to compose functions without specifying arguments
+-- (f . g . h) x is easier to read than f (g (h x))
+
+-- Example:
+-- pf = negate . sum
+
+-- These two functions are equivalent. The second is point-free.
+pf2 z xs = foldr (+) z xs
+
+pf2' :: (Foldable t, Num b) => b -> t b -> b
+pf2' = foldr (+)
+
+

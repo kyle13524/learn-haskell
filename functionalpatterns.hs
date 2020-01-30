@@ -295,9 +295,29 @@ take5enumOddReverse x = filter odd . take 5 . enumFrom $ x
 -- pf = negate . sum
 
 -- These two functions are equivalent. The second is point-free.
+
 pf2 z xs = foldr (+) z xs
 
 pf2' :: (Foldable t, Num b) => b -> t b -> b
 pf2' = foldr (+)
+
+-- Examples:
+
+add :: Int -> Int -> Int
+add x y = x + y
+
+addPF :: Int -> Int -> Int
+addPF = (+)
+
+addOne :: Int -> Int
+addOne = \x -> x + 1
+
+addOnePF :: Int -> Int
+addOnePF = (+1)
+
+
+-- 7.10 Demonstrating composition
+
+
 
 

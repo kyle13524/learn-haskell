@@ -247,7 +247,7 @@ codersRuleCEOsDrool e e' =
 
 
 
--- (.) :: (b -> c) -> (a -> b) -> a -> c
+-- (.) :: (B -> c) -> (a -> b) -> a -> c
 --           [1]         [2]     [3]  [4]
 
 -- 1. Function from b to c, passed as an argument
@@ -318,6 +318,89 @@ addOnePF = (+1)
 
 -- 7.10 Demonstrating composition
 
+print' :: Show a => a -> IO ()
+print' a = putStrLn (show a)
+
+print'' :: Show a => a -> IO ()
+print'' a = putStrLn . show $ a
+
+-- putStrLn :: String -> IO ()
+--               [1]      [2]
+
+-- show :: Show a => a -> String
+--               [3]       [4]
+
+-- putStrLn . show :: Show a => a -> IO ()
+--                     [5]            [6]
+
+-- (.) :: (b -> c) -> (a -> b) -> a -> c
+--        [1]  [2]    [3]  [4]   [5]  [6]
+
+-- If we replace the variables with the specific types we get:
+-- (.) :: Show a => (String -> IO ())
+--                  -> (a -> String)
+--                  -> a -> IO ()
+
+-- 1. The string that putStrLn accepts as an argument
+-- 2. The IO () that putStrLn returns, performing the side effect of printing and returning
+-- 3. a that must implement the Show type class (Show a => a from show function)
+-- 4. The string that show returns
+-- 5. The Show a => a the final function expects
+-- 6. the IO () the final composed function returns
+
+-- point-free version of print:
+print''' :: Show a => a -> IO ()
+print''' = putStrLn . show
 
 
+-- 7.11 Chapter Exercises
 
+tensDigit :: Integral a => a -> a
+tensDigit x = d
+  where xLast = x `div` 10
+        d = xLast `mod` 10
+
+-- tensDigit' :: Integral a => a -> a
+-- tensDigit' x = d
+--   where dm =
+--         d = snd dm
+
+-- hundredsDigit :: Integral a => a -> a
+-- hundredsDigit x = d
+--   where dm = x `divMod` 100
+--           d = snd dm
+
+foldBool :: a -> a -> Bool -> a
+foldBool =
+  error
+  "Error: Need to implement foldBool!"
+
+foldBool' :: a -> a -> Bool -> a
+foldBool' x _ False = x
+foldBool' _ y True = y
+
+-- foldBoolC :: a -> a -> Bool -> a
+
+foldBool'' :: a -> a -> Bool -> a
+foldBool'' x y b =
+  case b of
+    True -> y
+    False -> x
+
+foldBoolG :: a -> a -> Bool -> a
+foldBoolG x y b
+  | b == True = y
+  | otherwise = x
+
+roundTrip :: (Show a, Read a) => a -> a
+roundTrip a = read (show a)
+
+main = do
+  print (roundTrip 4)
+  print (id 4)
+
+roundTrip' :: (Show a, Read a) => a -> a
+roundTrip' = read . show
+
+roundTripAb :: (Show a, Read b) => a -> b
+roundTripAb = read . show

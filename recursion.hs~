@@ -1,0 +1,56 @@
+module Recursion where
+
+-- 8.2 Factorial
+
+fourFactorial :: Integer
+fourFactorial = 4 * 3 * 2 * 1
+
+brokenFact1 :: Integer -> Integer
+brokenFact1 n = n * brokenFact1 (n - 1)
+
+fixedFactorial :: Integer -> Integer
+fixedFactorial 0 = 1
+fixedFactorial n = n * fixedFactorial (n - 1)
+
+incTimes :: (Eq a, Num a) => a -> a -> a
+incTimes 0 n =
+  n
+incTimes times n =
+  1 + (incTimes (times - 1) n)
+
+incTimes' :: (Eq a, Num a) => a -> a
+incTimes' 0 = 0
+incTimes' times =
+  1 + (incTimes' (times - 1))
+
+applyTimes :: (Eq a, Num a) =>
+           a -> (b -> b) -> b -> b
+applyTimes 0 f b = b
+applyTimes n f b = f (applyTimes (n - 1) f b)
+
+
+-- 8.3 Bottom
+
+
+bottom :: Bool -> Int
+-- bottom True = error "blah"
+bottom False = 0
+
+
+-- 8.4 Fibonacci Numbers
+
+
+fibonacci :: Int -> Int
+fibonacci 0 = 0
+fibonacci 1 = 1
+fibonacci x = fibonacci (x - 1) + fibonacci (x - 2)
+
+
+-- 8.5 Integral Division
+
+dividedBy :: Integral a => a -> a -> (a, a)
+dividedBy n d = go n d 0
+  where go n d count
+          | n < d = (count, n)
+          | otherwise = go (n - d) d (count + 1)
+

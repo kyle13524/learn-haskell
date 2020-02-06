@@ -116,3 +116,46 @@ main =
 
 
 -- 9.7 List comprehensions
+-- Based on the concept of set comprehensions in mathematics.
+-- Must have at least one list which is the generator which gives
+-- input to the comprehension.
+
+-- Example:
+-- [ x ^ 2 | x <- [1..10] ]
+--   [1]  [2]     [  3  ]
+
+-- 1. Output function that we apply to the members of the list
+-- 2. The pipe separates the output function from the input
+-- 3. The input set: consists of a generator and a variable
+
+-- Notes:
+-- Can add a predicate to limit the elements drawn from the generator
+-- Can have multiple generator functions
+
+example1 :: (Enum a, Num a, Ord a) => [a]
+example1 = [x ^ y | x <- [1..10], y <- [2, 3], x ^ y < 200]
+
+-- Executes like this: x1 ^ y1, x1 ^ y2, x1 ^ y3 ... x2 ^ y1
+
+example2 = [(x, y) | x <- [1, 2, 3], y <- [6, 7]]
+example3 = [(x, y) | x <- [1..3], y <- ['a'..'b']]
+
+mySqr = [x ^ 2 | x <- [1..10]]
+example4 = [(x, y) | x <- mySqr, y <- [1..3], x < 4]
+
+-- Exercises: Comprehend thy lists
+
+exercise1 = [x | x <- mySqr, rem x 2 == 0]
+exercise2 = [(x, y) | x <- mySqr, y <- mySqr, x < 50, y > 50]
+exercise3 = take 5 [(x, y) | x <- mySqr, y <- mySqr, x < 50, y > 50]
+
+-- List comprehensions with Strings
+-- Since strings are also lists, we can use them in list comprehensions
+-- elem is a useful function that tells us whether an element is in a list
+
+lcstring = elem 'a' "abracadabra" -- True
+lcstring2 = elem 'a' "Julie" -- False
+
+threeLetterAcronym = [x | x <- "Three Letter Acronym", elem x ['A'..'Z']]
+acro xs = [x | x <- xs, elem x ['A'..'Z']]
+

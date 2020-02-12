@@ -235,3 +235,50 @@ mySqrCube'' = length $ mySqrCube'
 -- Values in Haskell get evaluated to Weak-Head Normal-Form (WHNF) by default.
 -- Normal form means the expression is fully evaluated, WHNF means the expression
 -- is only evaluated as far as necessary to reach a data constructor.
+
+-- (1, 2) -- WHNF & NF
+-- (1, 1 + 1) -- WHNF
+-- \x -> x * 10 -- WHNF & NF
+
+-- "Papu" ++ "chon" -- Neither
+-- Outermost component (++) is a function, whose arguments are fully applied
+-- (1, "Papu" ++ "chon") -- WHNF because the list hasn't been evaluated
+
+-- Length is strict in the spine. Using length on a list forces evaluation of the spine
+-- without evaluating the values. This is shown below:
+
+x = [1, undefined]
+-- length x -- 2
+-- This evaluates because bottom is not part of the spine 
+
+x' = [1] ++ undefined ++ [3]
+-- x' -- Exception: Prelude.undefined
+-- This doesn't evaluate because bottom is part of the spine
+
+length' :: [a] -> Integer
+length' [] = 0
+length' (_:xs) = 1 + length' xs
+
+-- In order for sum to return a result it must evaluate all elements in the list
+-- This function is spine and value strict.
+mySum :: Num a => [a] -> a
+mySum [] = 0
+mySum (x : xs) = x + mySum xs
+
+-- Exercise: Bottom Madness
+
+-- Will it blow up?
+
+-- 1. [x^y | x <- [1..5], y <- [2, undefined]] -- blow up
+-- 2. take 1 $ [x^y | x <- [1..5], y <- [2, undefined]] -- okay
+-- 3. sum [1, undefined, 3] -- blow up
+-- 4. length [1, 2, undefined] -- okay
+-- 5. length $ [1, 2, 3] ++ undefined -- blow up
+-- 6. take 1 $ filter even [1, 2, 3, undefined] -- okay
+-- 7. take 1 $ filter even [1, 3, undefined] -- blow up
+-- 8. take 1 $ filter odd [1, 3, undefined] -- okay
+-- 9. take 2 $ filter odd [1, 3, undefined] -- okay
+-- 10. take 3 $ filter odd [1, 3, undefined] -- blow up
+
+
+-- Section 9.9 Transforming lists of values

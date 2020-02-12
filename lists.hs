@@ -159,3 +159,79 @@ lcstring2 = elem 'a' "Julie" -- False
 threeLetterAcronym = [x | x <- "Three Letter Acronym", elem x ['A'..'Z']]
 acro xs = [x | x <- xs, elem x ['A'..'Z']]
 
+-- 9.7 List Comprehensions
+
+-- Based on the concept of set comprehensions in mathematics.
+-- Must have at least one list which is the generator which gives
+-- input to the comprehension.
+
+-- Example:
+-- [ x ^ 2 | x <- [1..10] ]
+--   [1]  [2]     [  3  ]
+
+-- 1. Output function that we apply to the members of the list
+-- 2. The pipe separates the output function from the input
+-- 3. The input set: consists of a generator and a variable
+
+-- Notes:
+-- Can add a predicate to limit the elements drawn from the generator
+-- Can have multiple generator functions
+
+example1 :: (Enum a, Num a, Ord a) => [a]
+example1 = [x ^ y | x <- [1..10], y <- [2, 3], x ^ y < 200]
+
+-- Executes like this: x1 ^ y1, x1 ^ y2, x1 ^ y3 ... x2 ^ y1
+
+example2 = [(x, y) | x <- [1, 2, 3], y <- [6, 7]]
+example3 = [(x, y) | x <- [1..3], y <- ['a'..'b']]
+
+mySqr2 = [x ^ 2 | x <- [1..10]]
+example4 = [(x, y) | x <- mySqr2, y <- [1..3], x < 4]
+
+-- Exercises: Comprehend thy lists
+
+
+-- Square Cube
+
+mySqr = [x^2 | x <- [1..5]]
+myCube = [x^3 | x <- [1..5]]
+
+mySqrCube = [(x, y) | x <- mySqr, y <- myCube]
+mySqrCube' = [(x, y) | x <- mySqr, y <- myCube, x < 50, y < 50]
+mySqrCube'' = length $ mySqrCube'
+
+
+-- 9.8 Spines & non-strict evaluation
+
+-- Data structures in Haskell have Spines
+-- Spine: The connective structure that ties a collection of values together
+-- In the case of a list, the recursive cons operator is the spine
+-- Ex. [1, 2] == 1 : (2 : [])
+
+-- When we build a list it proceeds from the bottom of the list and up the spine,
+-- first putting in the 2, and then the 1.
+-- Evaluation is non-strict, so the nodes are only constructed when being consumed.
+
+-- Using :sprint command
+-- Visualizes what has been evaluated already, using _ to represent unevaluated
+-- expressions.
+
+-- Using REPL:
+-- blah = enumFromTo 'a' 'z' | :sprint blah = _
+-- take 1 blah | :sprint blah = 'a' : _
+-- take 2 blah | :sprint blah = 'a' : 'b' : _
+
+-- * The example above shows how evaluation only happens when the nodes are being consumed * --
+
+-- The 'length' function is only strict in the spine, meaning it only forces
+-- evaluation on the spine of a list, not the values. When we use length on blah,
+-- :sprint will behave as though we had forced evaluation of the values as well.
+
+-- length blah | 24
+-- :sprint blah | blah = "abcdefghijklmnopqrstuvwxyz"
+
+-- * Spines are evaluated independently of values * --
+
+-- Values in Haskell get evaluated to Weak-Head Normal-Form (WHNF) by default.
+-- Normal form means the expression is fully evaluated, WHNF means the expression
+-- is only evaluated as far as necessary to reach a data constructor.

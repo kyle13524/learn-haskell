@@ -1,4 +1,5 @@
 module Lists where
+import Data.Char
 
 -- 9 Lists
 
@@ -143,7 +144,7 @@ example3 = [(x, y) | x <- [1..3], y <- ['a'..'b']]
 mySqr = [x ^ 2 | x <- [1..10]]
 example4 = [(x, y) | x <- mySqr, y <- [1..3], x < 4]
 
--- Exercises: Comprehend thy lists
+-- Exercise: Comprehend thy lists
 
 exercise1 = [x | x <- mySqr, rem x 2 == 0]
 exercise2 = [(x, y) | x <- mySqr, y <- mySqr, x < 50, y > 50]
@@ -159,45 +160,13 @@ lcstring2 = elem 'a' "Julie" -- False
 threeLetterAcronym = [x | x <- "Three Letter Acronym", elem x ['A'..'Z']]
 acro xs = [x | x <- xs, elem x ['A'..'Z']]
 
--- 9.7 List Comprehensions
+-- Exercise: Square Cube
 
--- Based on the concept of set comprehensions in mathematics.
--- Must have at least one list which is the generator which gives
--- input to the comprehension.
-
--- Example:
--- [ x ^ 2 | x <- [1..10] ]
---   [1]  [2]     [  3  ]
-
--- 1. Output function that we apply to the members of the list
--- 2. The pipe separates the output function from the input
--- 3. The input set: consists of a generator and a variable
-
--- Notes:
--- Can add a predicate to limit the elements drawn from the generator
--- Can have multiple generator functions
-
-example1 :: (Enum a, Num a, Ord a) => [a]
-example1 = [x ^ y | x <- [1..10], y <- [2, 3], x ^ y < 200]
-
--- Executes like this: x1 ^ y1, x1 ^ y2, x1 ^ y3 ... x2 ^ y1
-
-example2 = [(x, y) | x <- [1, 2, 3], y <- [6, 7]]
-example3 = [(x, y) | x <- [1..3], y <- ['a'..'b']]
-
-mySqr2 = [x ^ 2 | x <- [1..10]]
-example4 = [(x, y) | x <- mySqr2, y <- [1..3], x < 4]
-
--- Exercises: Comprehend thy lists
-
-
--- Square Cube
-
-mySqr = [x^2 | x <- [1..5]]
+mySqr' = [x^2 | x <- [1..5]]
 myCube = [x^3 | x <- [1..5]]
 
-mySqrCube = [(x, y) | x <- mySqr, y <- myCube]
-mySqrCube' = [(x, y) | x <- mySqr, y <- myCube, x < 50, y < 50]
+mySqrCube = [(x, y) | x <- mySqr', y <- myCube]
+mySqrCube' = [(x, y) | x <- mySqr', y <- myCube, x < 50, y < 50]
 mySqrCube'' = length $ mySqrCube'
 
 
@@ -282,5 +251,129 @@ mySum (x : xs) = x + mySum xs
 
 
 -- Section 9.9 Transforming lists of values
+
+-- * Since Haskell uses non-strict evaluation, we tend to use higher-order functions
+-- for transforming data rather than manually recursing over and over * --
+
+-- map is defined as such:
+myMap :: (a -> b) -> [a] -> [b]
+myMap _ [] = []
+myMap f (x : xs) = f x : map f xs
+
+-- mapf[1,2,3]==[f1,f2,f3]
+-- map (+1) [1, 2, 3]
+-- [(+1) 1, (+1) 2, (+1) 3]
+-- [2, 3, 4]
+
+myMap' = take 2 $ map (+1) [1, 2, undefined]
+-- same rules apply to the spine of this operation
+
+mapFirsts = map fst [(2, 3), (4, 5), (6, 7), (8, 9)]
+fmapFirsts = fmap fst [(2, 3), (4, 5), (6, 7), (8, 9)]
+
+-- We can also map a partially applied function
+mapTake3 = map (take 3) [[1..5], [1..5], [1..5]]
+
+-- Can also map an if-then-else over the list
+negate3rds = map (\x -> if x `mod` 3 == 0 then (-x) else (x)) [1..10]
+
+-- Exercise: More Bottoms
+
+-- Will the following expressions return a value?
+ex1 = take 1 $ map (+1) [undefined, 2, 3] -- Bottom
+ex2 =  take 1 $ map (+1) [1, undefined, 3] -- 1
+ex3 = take 2 $ map (+1) [1, undefined, 3] -- Bottom
+
+-- What does this function do?
+itIsMystery xs =
+  map (\x -> elem x "aeiou") xs
+  -- Maps over a list of characters and returns whether the letter
+  -- is a vowel. Returns a list ex. itIsMystery "hello" = [False, True, False, False, True]
+
+-- What will be the result?
+exA = map (^2) [1..10] -- List of squares
+exB = map minimum [[1..10], [10..20], [20..30]] -- Minimum value of each list
+exC = map sum [[1..5], [1..5], [1..5]] -- Sums up each list
+
+
+-- Section 9.10 Filtering lists of values
+
+-- Filter builds a nw list including values that meet the condition
+filter' :: (a -> Bool) -> [a] -> [a]
+filter' _ [] = []
+filter' pred (x:xs)
+ | pred x = x : filter' pred xs
+ | otherwise = filter' pred xs
+
+-- filter vs. list comprehension
+filter1 = filter (\x -> elem x "aeiou") "abracadabra"
+filter2 = [x | x <- "abracadabra", elem x "aeiou"]
+
+-- Exercises:
+
+filter3 = filter (\x -> x `mod` 3 == 0) [1..30]
+filter4 = length . filter (\x -> x `mod` 3 == 0) $ [1..30]
+
+removeFillerWords :: [[Char]] -> [[Char]]
+removeFillerWords [] = []
+removeFillerWords (x:xs)
+  | x == "a" = removeFillerWords xs
+  | x == "the" = removeFillerWords xs
+  | x == "an" = removeFillerWords xs
+  | otherwise = x : removeFillerWords xs
+
+myFilter s = removeFillerWords . words $ s
+myFilter2 s = filter (\x -> x /= "an" && x /= "a" && x /= "the") . words $ s
+myFilter3 s = [ x | x <- words s, x /= "an", x /= "a", x /= "the"]
+
+
+-- Section 9.11 Zipping lists
+
+
+-- Zipping lists together is a means of combining values from multiple lists into a single list
+-- Zipping stops as soon as one of the lists runs out of values
+
+-- zip :: [a] -> [b] -> [(a, b)]
+
+-- zipWith :: (a -> b -> c)
+--            [     1     ]
+--         -> [a] -> [b] -> [c]
+--            [2]    [3]    [4]
+
+-- 1. Function with two arguments. Types align with variables in the lists
+-- 2. First input list
+-- 3. Second input list
+-- 4. Output list created from applying the function to the values of input lists
+
+-- Examples:
+
+zip1 = zipWith (+) [1, 2, 3] [10, 11, 12] -- [11, 13, 15]
+zip2 = zipWith (*) [1, 2, 3] [10, 11, 12] -- [10, 22, 36]
+zip3 = zipWith (==) ['a'..'f'] ['a'..'m']
+
+-- Exercises:
+
+myZip :: [a] -> [b] -> [(a, b)]
+myZip [] _ = []
+myZip _ [] = []
+myZip (x:xs) (y:ys) =
+  (x, y) : myZip xs ys
+
+
+-- Section 9.12 Chapter Exercises
+
+
+-- Data.Char
+
+capitalizeFirst :: [Char] -> [Char]
+capitalizeFirst (x:xs) =
+  toUpper x : xs
+
+capitalizeAll :: [Char] -> [Char]
+capitalizeAll [] = []
+capitalizeAll (x:xs) =
+  toUpper x : capitalizeAll xs
+
+-- Ciphers
 
 

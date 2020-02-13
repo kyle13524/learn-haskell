@@ -282,3 +282,21 @@ mySum (x : xs) = x + mySum xs
 
 
 -- Section 9.9 Transforming lists of values
+
+
+-- * Because Haskell uses non-strict evaluation, we tend to use higher-order functions
+-- for transforming data rather than manually recursing over and over * --
+
+-- map is defined as such:
+myMap :: (a -> b) -> [a] -> [b]
+myMap _ = []
+myMap f (x : xs) = f x : map f xs
+
+-- mapf[1,2,3]==[f1,f2,f3]
+-- map (+1) [1, 2, 3]
+-- [(+1) 1, (+1) 2, (+1) 3]
+-- [2, 3, 4]
+
+myMap' = take 2 $ map (+1) [1, 2, undefined]
+-- same rules apply here
+

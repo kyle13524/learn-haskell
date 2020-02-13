@@ -282,3 +282,5 @@ mySum (x : xs) = x + mySum xs
 
 
 -- Section 9.9 Transforming lists of values
+
+
